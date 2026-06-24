@@ -1,6 +1,10 @@
 # 🧪 vibe-tester — `flow-tester`
 
+### Point an AI at your web app. Watch it click through every flow in a real browser and tell you what's broken.
+
 > A Claude Code skill that **understands your web app's user flows, drives a real Chromium browser through them, watches itself on a live dashboard, and reports bugs** — functional, content, visual, and console/network. On a local codebase it also runs a **read-only security audit**. It **identifies issues; it never fixes them.**
+
+![flow-tester live dashboard — live browser view on the left, bugs streaming in on the right](docs/dashboard.png)
 
 Packaged as a [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin marketplace, in the structure popularized by [trailofbits/skills](https://github.com/trailofbits/skills).
 
@@ -38,7 +42,9 @@ While a run is in progress, open **http://localhost:4500** to watch:
 ```
 
 - **Left:** the live browser, streamed via Chrome DevTools Protocol screencast.
-- **Right tabs:** Flows, per-step pass/fail, Bugs, Security findings, and a live log — all populated from history so you can review after the run too.
+- **Right tabs:** Flows, per-step pass/fail, Bugs, Security findings, Recommendations, and a live log — all populated from history so you can review after the run too.
+
+![Recommendations tab — "works, but should be better" findings like missing error messages and double-submit guards](docs/dashboard-recommendations.png)
 
 ## 🧭 Two modes
 
