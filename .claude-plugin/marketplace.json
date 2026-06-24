@@ -1,0 +1,15 @@
+{
+  "name": "ai-tester",
+  "owner": "kushagraagent47",
+  "metadata": {
+    "description": "AI-driven application testing skills: flow discovery, browser-based E2E testing with a live dashboard, and local-source security auditing.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "flow-tester",
+      "source": "./plugins/flow-tester",
+      "description": "Understands a web app's user flows, then drives a real Chromium browser through them while a live local dashboard streams what it sees. Flags functional, content, visual, and console/network bugs. On local codebases it also runs a read-only security audit. Identify-only: it never fixes."
+    }
+  ]
+}

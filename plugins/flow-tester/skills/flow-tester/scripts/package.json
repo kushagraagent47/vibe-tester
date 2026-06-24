@@ -1,0 +1,18 @@
+{
+  "name": "flow-tester-scripts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Runtime scripts for the flow-tester skill: live dashboard server and Chromium control server.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dashboard": "node dashboard/server.mjs",
+    "browser": "node browser/control-server.mjs",
+    "postinstall": "playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.49.0"
+  }
+}
