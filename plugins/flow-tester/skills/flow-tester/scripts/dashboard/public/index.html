@@ -82,6 +82,7 @@
       <div class="tabs">
         <div class="tab active" data-pane="bugs">Bugs<span class="count" id="c-bugs">0</span></div>
         <div class="tab" data-pane="security">Security<span class="count" id="c-security">0</span></div>
+        <div class="tab" data-pane="recs">Recs<span class="count" id="c-recs">0</span></div>
         <div class="tab" data-pane="flows">Flows</div>
         <div class="tab" data-pane="steps">Steps<span class="count" id="c-steps">0</span></div>
         <div class="tab" data-pane="logs">Logs</div>
@@ -89,6 +90,7 @@
       <div class="panes">
         <div class="pane active" id="p-bugs"><div class="empty-pane">No bugs yet.</div></div>
         <div class="pane" id="p-security"><div class="empty-pane">No security findings yet.</div></div>
+        <div class="pane" id="p-recs"><div class="empty-pane">No recommendations yet.</div></div>
         <div class="pane" id="p-flows"><div class="empty-pane">Flows appear here once discovered.</div></div>
         <div class="pane" id="p-steps"><div class="empty-pane">No steps run yet.</div></div>
         <div class="pane" id="p-logs"><div class="empty-pane">No logs yet.</div></div>
@@ -99,7 +101,7 @@
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
-const counts = { bugs: 0, security: 0, steps: 0 };
+const counts = { bugs: 0, security: 0, recs: 0, steps: 0 };
 
 function clearEmpty(pane) { const e = pane.querySelector(".empty-pane"); if (e) e.remove(); }
 
@@ -151,6 +153,22 @@ function addSecurity(e) {
   counts.security++; $("c-security").textContent = counts.security; $("m-sec").textContent = counts.security;
 }
 
+function addRec(e) {
+  const pane = $("p-recs"); clearEmpty(pane);
+  const sev = e.severity || "medium";
+  const card = document.createElement("div");
+  card.className = "card sev-" + sev;
+  card.innerHTML =
+    `<div class="row"><span class="tag" style="background:rgba(91,140,255,.18);color:var(--accent)">rec</span>` +
+    `<span class="tag bg-${sev}">${esc(sev)}</span>` +
+    `<span class="tag cat">${esc(e.category || "improvement")}</span>` +
+    `<span class="title">${esc(e.title || "Recommendation")}</span></div>` +
+    (e.detail ? `<div class="detail">${esc(e.detail)}</div>` : "") +
+    ((e.flow || e.step) ? `<div class="where">${esc(e.flow || "")}${e.step ? " › " + esc(e.step) : ""}</div>` : "");
+  pane.prepend(card);
+  counts.recs++; $("c-recs").textContent = counts.recs;
+}
+
 function addStep(e) {
   const pane = $("p-steps"); clearEmpty(pane);
   const v = (e.verdict || "").toLowerCase();
@@ -192,6 +210,7 @@ function apply(e) {
     case "flows": renderFlows(e.flows); break;
     case "bug": addBug(e); break;
     case "security": addSecurity(e); break;
+    case "recommendation": addRec(e); break;
     case "step": addStep(e); break;
     case "log": addLog(e); break;
   }
@@ -205,6 +224,7 @@ function applySnapshot(s) {
   if (s.flows) renderFlows(s.flows);
   (s.bugs || []).forEach(addBug);
   (s.security || []).forEach(addSecurity);
+  (s.recommendations || []).forEach(addRec);
   (s.steps || []).forEach(addStep);
   (s.logs || []).forEach(addLog);
 }

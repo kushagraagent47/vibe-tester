@@ -2,8 +2,8 @@
   "name": "vibe-tester",
   "owner": "kushagraagent47",
   "metadata": {
-    "description": "AI-driven application testing skills: flow discovery, browser-based E2E testing with a live dashboard, and local-source security auditing.",
-    "version": "0.1.0"
+    "description": "AI-driven application testing skills: flow discovery, browser-based E2E testing with a live dashboard, file-upload generation, scheduled monitoring, recommendations, and local-source security auditing.",
+    "version": "0.2.0"
   },
   "plugins": [
     {

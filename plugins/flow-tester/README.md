@@ -21,6 +21,11 @@ security audit**. It **identifies issues — it never fixes them.**
 - **A — Local (white-box):** local source + running app → flow testing **and** security audit.
 - **B — Standalone URL (black-box):** just a URL (may be production) → flow testing only, **no audit**.
   Against production, writes are ask-first; payments/deletes are always blocked.
+- **C — Scheduled monitoring:** re-test a saved set of flows/pages every N minutes (e.g. all products
+  every 20 min) with deterministic assertions; failures alert on the dashboard.
+
+Plus: the agent **generates & uploads files** on demand (PDF/PNG/CSV/…), and emits **recommendations**
+for "works but missing a safeguard" cases (e.g. wrong password → no error message).
 
 ## Components
 
@@ -29,16 +34,20 @@ skills/flow-tester/
 ├── SKILL.md                       # orchestration brain (modes, phases, safety rails)
 ├── references/
 │   ├── flow-discovery.md          # how flows are mapped (hybrid)
-│   ├── browser-driver.md          # the /act control-server protocol
+│   ├── browser-driver.md          # the /act control-server protocol (+ upload/genfile)
 │   ├── bug-criteria.md            # bug categories + severity + judging discipline
+│   ├── recommendations.md         # proactive edge-case thinking; bug vs recommendation
 │   └── security-audit.md          # tools + Trail of Bits skill playbooks (local only)
 ├── workflows/
 │   ├── mode-a-local-audit.md
-│   └── mode-b-url-test.md
+│   ├── mode-b-url-test.md
+│   └── mode-c-monitor.md          # scheduled recurring monitoring
 └── scripts/
     ├── dashboard/server.mjs       # zero-dep SSE live dashboard (port 4500)
     ├── dashboard/public/index.html
     ├── browser/control-server.mjs # Playwright control + live screencast (port 4600)
+    ├── lib/genfile.mjs            # synthetic file generator (PDF/PNG/CSV/TXT/JSON)
+    ├── monitor.mjs                # recurring deterministic monitor (Mode C)
     └── report.mjs                 # turns live dashboard state into a durable report.md
 ```
 

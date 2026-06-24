@@ -60,6 +60,7 @@ function renderSec(s) {
 const s = await loadState();
 const bugs = s.bugs || [];
 const security = s.security || [];
+const recommendations = s.recommendations || [];
 const steps = s.steps || [];
 const passed = steps.filter((x) => (x.verdict || "").toLowerCase() === "pass").length;
 const failed = steps.filter((x) => (x.verdict || "").toLowerCase() === "fail").length;
@@ -69,7 +70,7 @@ md += `- **Mode:** ${s.mode || "—"}\n`;
 md += `- **Target:** ${s.target || "—"}\n`;
 md += `- **Generated:** ${new Date().toISOString()}\n`;
 md += `- **Steps:** ${steps.length} (${passed} pass, ${failed} fail)\n`;
-md += `- **Bugs:** ${bugs.length} · **Security findings:** ${security.length}\n\n`;
+md += `- **Bugs:** ${bugs.length} · **Security findings:** ${security.length} · **Recommendations:** ${recommendations.length}\n\n`;
 md += `> Identify-only report — no fixes were applied.\n\n`;
 
 if (s.flows?.length) {
@@ -81,7 +82,15 @@ if (s.flows?.length) {
   }
 }
 
+function renderRec(r) {
+  let md = `### [${(r.severity || "?").toUpperCase()}] ${r.title || "Recommendation"}  \`${r.category || "improvement"}\`\n`;
+  if (r.flow || r.step) md += `- **Where:** ${esc(r.flow || "")}${r.step ? " › " + esc(r.step) : ""}\n`;
+  if (r.detail) md += `- **Suggestion:** ${esc(r.detail)}\n`;
+  return md;
+}
+
 md += section("Bugs", bugs, renderBug) + "\n";
+md += section("Recommendations", recommendations, renderRec) + "\n";
 md += section("Security findings", security, renderSec);
 
 await writeFile(OUT, md, "utf8");

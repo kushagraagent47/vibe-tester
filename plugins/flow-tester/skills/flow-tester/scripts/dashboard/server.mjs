@@ -25,6 +25,8 @@ const state = {
   flows: null,
   bugs: [],
   security: [],
+  recommendations: [],
+  monitor: [],
   steps: [],
   logs: [],
 };
@@ -69,6 +71,13 @@ function ingest(event) {
       break;
     case "security":
       state.security.push(event);
+      break;
+    case "recommendation":
+      state.recommendations.push(event);
+      break;
+    case "monitor":
+      state.monitor.push(event);
+      if (state.monitor.length > 500) state.monitor.shift();
       break;
     case "step":
       state.steps.push(event);

@@ -30,9 +30,11 @@ bugs. Optionally audit local source for security issues. **Never fixes anything 
 |------|---------|----------------|----------------|
 | **A — Local (white-box)** | User has the source code locally AND can run the app | Hybrid: static code analysis + live network capture | ✅ Yes — on source only |
 | **B — Standalone URL (black-box)** | User gives only a URL (may be production) | Live only: navigate + observe, or user-described flows | ❌ Never |
+| **C — Scheduled monitoring** | User wants flows re-tested on a recurring interval ("check all products every 20 min") | Deterministic re-checks of a saved target list | ❌ Never |
 
 Detect the mode from the request. If ambiguous, ask. **Security auditing only ever runs on local
-source code — never against a live/production URL.**
+source code — never against a live/production URL.** Mode C is documented in
+**[workflows/mode-c-monitor.md](workflows/mode-c-monitor.md)** and uses `scripts/monitor.mjs`.
 
 ---
 
@@ -107,6 +109,12 @@ Full protocol in **[references/browser-driver.md](references/browser-driver.md)*
 4. Classify any failure per **[references/bug-criteria.md](references/bug-criteria.md)** and POST a
    `bug` event to the dashboard. Keep going — one failing step should not abort the whole run
    (recover or skip to the next flow).
+5. **Think proactively about edge cases**, not just the happy path — wrong password, empty fields,
+   invalid input, double-submit, out-of-stock, etc. Per **[references/recommendations.md](references/recommendations.md)**,
+   when the app *works* but is missing a safeguard or message (e.g. a wrong password shows **no
+   error at all**), POST a `recommendation` event rather than a `bug`.
+6. **Uploads:** if a flow needs a file, fabricate one with the `upload` action (it can generate a
+   PDF/PNG/CSV/etc. on the fly) — see **[references/browser-driver.md](references/browser-driver.md)**.
 
 **Write policy:** after the user confirms the env is non-production, normal writes (signup, login,
 posting) are allowed, but **payments and destructive deletes are always blocked**. In Mode B against
@@ -118,8 +126,8 @@ When both workstreams finish, generate the durable report from the live dashboar
 ```
 node {baseDir}/scripts/report.mjs --dashboard http://localhost:4500 --out flow-tester/session/report.md
 ```
-This pulls every posted `bug`/`security`/`step`/`flow` event and writes a Markdown report grouped by
-category + severity. Review it, add reproduction notes where useful, and summarize for the user. The
+This pulls every posted `bug`/`recommendation`/`security`/`step`/`flow` event and writes a Markdown
+report grouped by category + severity (bugs, recommendations, and security findings in separate sections). Review it, add reproduction notes where useful, and summarize for the user. The
 dashboard already shows everything live; the report is the durable artifact. **Propose no fixes unless
 the user asks.**
 

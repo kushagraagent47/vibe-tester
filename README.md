@@ -11,8 +11,15 @@ Packaged as a [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin 
 1. **Understands the app** — asks what the project is, then maps user flows (`signup → login → dashboard`) using **hybrid discovery**: static code analysis refined by live network capture.
 2. **Confirms with you** — shows the discovered flow graph and waits for your approval/edits before touching anything.
 3. **Tests in a real browser** — opens Chromium and walks each flow step-by-step. After every action it captures the **accessibility tree**, a **screenshot**, and any **console/network errors**; Claude judges each screen (vision + a11y) against what's expected and logs bugs.
-4. **Audits security** *(local source only)* — a parallel, read-only pass using Semgrep + dependency scanning + Claude reasoning (leaning on the Trail of Bits skills when installed).
-5. **Reports** — a consolidated, identify-only `report.md`, with everything also streaming to a **live local dashboard** as it happens.
+4. **Thinks about edge cases** — proactively generates negative/edge flows (wrong password, empty fields, double-submit, out-of-stock…) and, when the app *works* but is missing a safeguard or message, emits a **recommendation** instead of a bug.
+5. **Audits security** *(local source only)* — a parallel, read-only pass using Semgrep + dependency scanning + Claude reasoning (leaning on the Trail of Bits skills when installed).
+6. **Reports** — a consolidated, identify-only `report.md` (bugs, recommendations, security findings), with everything also streaming to a **live local dashboard** as it happens.
+
+### Also built in
+
+- **📎 Generates & uploads files.** When a flow needs an upload, the AI fabricates a valid file on the fly (PDF, PNG, CSV, TXT, JSON) and attaches it — no fixtures needed.
+- **⏰ Scheduled monitoring.** Re-test a saved set of flows/pages every N minutes (e.g. *"check all products every 20 minutes"*) with deterministic assertions; failures raise alerts on the dashboard. For AI-vision judgement on a schedule, drive it from Claude Code's `/loop` or `schedule`.
+- **💡 Recommendations.** A distinct output stream for "works, but should be better" findings — the classic being *wrong password → no error message at all.*
 
 ## 🎬 Live dashboard
 
@@ -39,6 +46,7 @@ While a run is in progress, open **http://localhost:4500** to watch:
 |------|-------|-----------|----------------|
 | **A — Local (white-box)** | Local source + a running app | Hybrid flow discovery + browser testing + security audit | ✅ on source only |
 | **B — Standalone URL (black-box)** | Just a URL (may be production) | Browser flow testing only | ❌ never |
+| **C — Scheduled monitoring** | A saved set of pages/flows | Re-tests them every N minutes (e.g. all products every 20 min) | ❌ never |
 
 Security scanning **only ever runs on local source code** — never against a live URL. In Mode B against a production target, writes (signup/post) are **ask-first**; payments and destructive deletes are **always blocked**.
 
@@ -115,16 +123,20 @@ vibe-tester/
         ├── SKILL.md                     # orchestration brain — modes, 5 phases, safety rails
         ├── references/
         │   ├── flow-discovery.md        # hybrid (static + live) flow mapping
-        │   ├── browser-driver.md        # the /act control protocol
+        │   ├── browser-driver.md        # the /act control protocol (+ upload/genfile)
         │   ├── bug-criteria.md          # bug categories, severity, judging discipline
+        │   ├── recommendations.md       # proactive edge-case thinking; bug vs recommendation
         │   └── security-audit.md        # Semgrep + deps + Trail of Bits playbooks (local only)
         ├── workflows/
         │   ├── mode-a-local-audit.md
-        │   └── mode-b-url-test.md
+        │   ├── mode-b-url-test.md
+        │   └── mode-c-monitor.md        # scheduled recurring monitoring
         └── scripts/
             ├── dashboard/server.mjs     # zero-dependency SSE live dashboard (port 4500)
             ├── dashboard/public/index.html
             ├── browser/control-server.mjs   # Playwright control + live screencast (port 4600)
+            ├── lib/genfile.mjs          # synthetic file generator (PDF/PNG/CSV/TXT/JSON)
+            ├── monitor.mjs              # recurring deterministic monitor (Mode C)
             └── report.mjs               # turns live dashboard state into a durable report.md
 ```
 
@@ -162,6 +174,8 @@ node report.mjs --dashboard http://localhost:4500 --out report.md
 | `type` | locator + `value` | per-character typing (auto-advancing inputs, OTP) |
 | `press` | `key` | keyboard press |
 | `select` | locator + `value` | choose a `<select>` option |
+| `upload` | file input + `file` spec (or `path`) | generate a file (PDF/PNG/CSV/…) and attach it |
+| `genfile` | `file` spec | write a synthetic file to disk, return its path |
 | `waitFor` | `selector`+`state` \| `ms` | wait for a condition |
 | `back` / `reload` / `snapshot` | — | history / re-capture without interacting |
 

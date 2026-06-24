@@ -1,6 +1,6 @@
 {
   "name": "flow-tester",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Discovers a web app's user flows, drives a real Chromium browser through them with a live local dashboard, flags functional/content/visual/console bugs, and runs a read-only security audit on local source. Identify-only, never fixes.",
   "author": {
     "name": "kushagraagent47"

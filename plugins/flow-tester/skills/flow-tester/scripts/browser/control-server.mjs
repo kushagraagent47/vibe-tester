@@ -12,6 +12,7 @@ import { mkdirSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { chromium } from "playwright";
+import { genFile } from "../lib/genfile.mjs";
 
 // ---- args ------------------------------------------------------------------
 const argv = process.argv.slice(2);
@@ -123,6 +124,32 @@ async function perform(body) {
       await page.keyboard.press(body.key); break;
     case "select":
       await pick(body, locator(body)).selectOption(body.value); break;
+    case "upload": {
+      // Generate a synthetic file (or use body.path) and attach it to a file input.
+      const f = body.path
+        ? body.path
+        : (() => { const g = genFile(body.file || { kind: "pdf" }); return { name: g.name, mimeType: g.mimeType, buffer: g.buffer }; })();
+      if (body.chooser) {
+        // for custom drop-zones / buttons that open a native file chooser
+        const [chooser] = await Promise.all([
+          page.waitForEvent("filechooser", { timeout }),
+          pick(body, locator(body)).click({ timeout }),
+        ]);
+        await chooser.setFiles(f);
+      } else {
+        await pick(body, locator(body)).setInputFiles(f);
+      }
+      break;
+    }
+    case "genfile": {
+      // Write a synthetic file to disk and return its path (for drag/drop or manual flows).
+      const g = genFile(body.file || { kind: "pdf" });
+      const p = join(SESSION_DIR, "uploads", g.name);
+      mkdirSync(join(SESSION_DIR, "uploads"), { recursive: true });
+      await writeFile(p, g.buffer);
+      body.__generatedPath = p; // surfaced in the response below
+      break;
+    }
     case "waitFor":
       if (body.selector) await page.locator(body.selector).waitFor({ state: body.state || "visible", timeout });
       else await page.waitForTimeout(Math.min(timeout, body.ms || 1000));
@@ -179,7 +206,7 @@ const server = http.createServer(async (req, res) => {
     await perform(body);
     const cap = await capture(label);
     log(`✓ ${label}`);
-    return send(res, 200, { ok: true, action: body.action, ...cap });
+    return send(res, 200, { ok: true, action: body.action, generatedPath: body.__generatedPath, ...cap });
   } catch (e) {
     // still try to capture state on failure so the agent can judge what went wrong
     let cap = {};

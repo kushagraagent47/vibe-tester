@@ -31,6 +31,12 @@ expect, CORS failures, mixed-content warnings, resources that 404. A clean-looki
 - **medium** — degraded but usable (validation gap, recoverable error).
 - **low** — cosmetic / minor copy.
 
+## Bug vs. recommendation
+A **bug** is something observably wrong against an expectation. If the app *works* but is missing a
+safeguard or message — e.g. a wrong password produces **no error at all** — that's a **recommendation**,
+not a bug. Post those as `recommendation` events and proactively hunt for edge cases per
+**[recommendations.md](recommendations.md)**.
+
 ## Judging discipline
 - The `expect` field + the project description are the oracle. If you can't tell whether something
   is wrong, say so in the bug as `confidence: low` rather than inventing a verdict or staying silent.

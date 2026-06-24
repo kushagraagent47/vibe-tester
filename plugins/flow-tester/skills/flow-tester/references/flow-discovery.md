@@ -49,6 +49,10 @@ at hidden/admin flows.
 }
 ```
 
-Keep `expect` concrete — it is the standard the browser agent judges each screen against. Include at
-least one **negative path** per auth flow (e.g. wrong password → the error message must be correct
-and specific), since incorrect error messages are a primary thing we report.
+Keep `expect` concrete — it is the standard the browser agent judges each screen against.
+
+**Always generate negative and edge-case flows, not just happy paths.** For every flow add at least
+one negative path (wrong password, empty fields, invalid input, wrong file type, out-of-stock item,
+double-submit, direct-link to a protected page while logged out). These surface the most valuable
+findings — including missing error messages, which become **recommendations**. See
+**[recommendations.md](recommendations.md)** for the catalogue of edge cases to think through.
