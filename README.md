@@ -1,4 +1,4 @@
-# 🧪 ai-tester — `flow-tester`
+# 🧪 vibe-tester — `flow-tester`
 
 > A Claude Code skill that **understands your web app's user flows, drives a real Chromium browser through them, watches itself on a live dashboard, and reports bugs** — functional, content, visual, and console/network. On a local codebase it also runs a **read-only security audit**. It **identifies issues; it never fixes them.**
 
@@ -47,7 +47,7 @@ Security scanning **only ever runs on local source code** — never against a li
 ## 🚀 Install
 
 ```bash
-/plugin marketplace add kushagraagent47/ai-tester
+/plugin marketplace add kushagraagent47/vibe-tester
 /plugin                 # open the menu → enable "flow-tester"
 ```
 
@@ -106,7 +106,7 @@ For every step the browser agent: issues an action → reads the returned screen
 ## 🧱 Project structure
 
 ```
-ai-tester/
+vibe-tester/
 ├── .claude-plugin/marketplace.json     # makes this repo an installable marketplace
 └── plugins/flow-tester/
     ├── .claude-plugin/plugin.json
